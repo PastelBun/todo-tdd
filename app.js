@@ -14,6 +14,6 @@ app.use((error, req, res, next)=>{
 
 app.get('/', (req,res)=>{
     res.send('express test')
-})
+});
 
 module.exports=app

@@ -60,10 +60,10 @@ describe("TodoController.getTodos", ()=>{
         expect(res._getJSONData()).toStrictEqual(allTodos);
     });
     it("should handle errors in getTodos", async()=>{
-        const errorMessage={ message: "Something went wrong" };
+        const errorMessage={ message: "Error finding todoModel" };
         const rejectedPromise= Promise.reject(errorMessage);
-        TodoModel.create.mockReturnValue(rejectedPromise);
-        await TodoController.createTodo(req, res, next);
+        TodoModel.find.mockReturnValue(rejectedPromise);
+        await TodoController.getTodos(req, res, next);
         expect(next).toBeCalledWith(errorMessage);    
     });
 });
@@ -73,22 +73,28 @@ describe("TodoController.getTodoById",()=>{
         expect(typeof TodoController.getTodoById).toBe("function");
     });
     it("should call TodoModel.findById with route parameters", async()=>{
-        req.params.todoId="67863574bb1bbd2b0674efe8";
+        req.params.todoId = "67863574bb1bbd2b0674efe8";
         await TodoController.getTodoById(req, res, next);
         expect(TodoModel.findById).toBeCalledWith("67863574bb1bbd2b0674efe8");
     });
     it("should return response with status 200 and todo defined by id", async()=>{
-        TodoModel.find.mockReturnValue(newTodo);
+        TodoModel.findById.mockReturnValue(newTodo); // Ensure newTodo is a valid mock object
         await TodoController.getTodoById(req, res, next);
         expect(res.statusCode).toBe(200);
-        expect(res._getJSONData()).toStrictEqual(newTodo);
+        expect(res._getJSONData()).toStrictEqual(newTodo);        
         expect(res._isEndCalled()).toBeTruthy();
     });
-    it("should handle errors in getTodoById", async()=>{
-        const errorMessage={ message: "Something went wrong" };
+    it("should do error handling", async()=>{
+        const errorMessage={ message: "Error finding todoModel" };
         const rejectedPromise= Promise.reject(errorMessage);
-        TodoModel.create.mockReturnValue(rejectedPromise);
-        await TodoController.createTodo(req, res, next);
+        TodoModel.findById.mockReturnValue(rejectedPromise);
+        await TodoController.getTodoById(req, res, next);
         expect(next).toBeCalledWith(errorMessage);    
     });
+    it('should return 404 when item doesnt exist', async()=>{
+        TodoModel.findById.mockReturnValue(null);
+        await TodoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(404);
+        expect(res._isEndCalled()).toBeTruthy();
+    })
 });
