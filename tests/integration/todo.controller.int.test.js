@@ -31,5 +31,5 @@ describe(endpointUrl,()=>{
         expect(Array.isArray(response.body)).toBeTruthy();
         expect(response.body[0].title).toBeDefined();
         expect(response.body[0].done).toBeDefined();
-    })
+    });
 });

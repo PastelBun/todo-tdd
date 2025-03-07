@@ -4,8 +4,9 @@ const httpMocks=require('node-mocks-http')
 const newTodo=require('../mock-data/new-todo.json')
 const allTodos=require('../mock-data/all-todos.json');
 
-TodoModel.create=jest.fn()
-TodoModel.find=jest.fn()
+TodoModel.create=jest.fn();
+TodoModel.find=jest.fn();
+TodoModel.findById=jest.fn();
 
 let req, res, next
 beforeEach(()=>{
@@ -63,5 +64,31 @@ describe("TodoController.getTodos", ()=>{
         const rejectedPromise= Promise.reject(errorMessage);
         TodoModel.create.mockReturnValue(rejectedPromise);
         await TodoController.createTodo(req, res, next);
-        expect(next).toBeCalledWith(errorMessage);    })
+        expect(next).toBeCalledWith(errorMessage);    
+    });
+});
+
+describe("TodoController.getTodoById",()=>{
+    it("should have a getTodoById",()=>{
+        expect(typeof TodoController.getTodoById).toBe("function");
+    });
+    it("should call TodoModel.findById with route parameters", async()=>{
+        req.params.todoId="67863574bb1bbd2b0674efe8";
+        await TodoController.getTodoById(req, res, next);
+        expect(TodoModel.findById).toBeCalledWith("67863574bb1bbd2b0674efe8");
+    });
+    it("should return response with status 200 and todo defined by id", async()=>{
+        TodoModel.find.mockReturnValue(newTodo);
+        await TodoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(200);
+        expect(res._getJSONData()).toStrictEqual(newTodo);
+        expect(res._isEndCalled()).toBeTruthy();
+    });
+    it("should handle errors in getTodoById", async()=>{
+        const errorMessage={ message: "Something went wrong" };
+        const rejectedPromise= Promise.reject(errorMessage);
+        TodoModel.create.mockReturnValue(rejectedPromise);
+        await TodoController.createTodo(req, res, next);
+        expect(next).toBeCalledWith(errorMessage);    
+    });
 });

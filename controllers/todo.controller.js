@@ -18,7 +18,16 @@ const getTodos=async (req, res, next)=>{
         next(error)
     }
 }
+const getTodoById=async(res, req, next)=>{
+    try {
+        const todoModel=await TodoModel.findById(req.params.todoId);
+        res.status(200).json(todoModel)
+    } catch (error) {
+        next(error)
+    }
+}
 
 module.exports={createTodo,
-    getTodos
+    getTodos,
+    getTodoById
 }
